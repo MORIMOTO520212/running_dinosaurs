@@ -38,7 +38,7 @@ def HPBeacon(player_hp, p): # inum - 入力した数, p - 確率 1 2 3
 # 初期設定 #
 player_hp = 10 # プレイヤー初期HP
 beacon_pop_rate = [0,1,1] # ビーコン出現率1/3  [0,1] - 1/2
-monster_lv = [[2,6], [3,9]] # モンスターレベル [[stage1最低, stage1最高], [stage2最低, stage2最高]]
+monster_lv = [[1,3], [3,9]] # モンスターレベル [[stage1最低, stage1最高], [stage2最低, stage2最高]]
 stage_turn = 0 # Stage turn
 stage_map = [] # Stage map
 
