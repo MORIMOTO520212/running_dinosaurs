@@ -1,4 +1,15 @@
 import random
+from time import sleep
+
+# 実行環境検出
+console_clear_st = True
+try: from google.colab import output
+except ImportError:
+    console_clear_st = False
+    import os
+def console_clear():
+    if console_clear_st: output.clear()
+    else: os.system("cls")
 
 def toem(n): # 半角数字から全角数字に変換する
     num = ["０","１","２","３","４","５","６","７","８","９"]
@@ -6,34 +17,6 @@ def toem(n): # 半角数字から全角数字に変換する
     for i in str(n):
         em += num[int(i)]
     return em
-
-def re_uni_txt(text):
-    # replace color script.
-    # 一色のみ対応
-    pattern = r".*?(\033\[.*?m).*"
-    res = re.match(pattern, text)
-    uni_txt = []
-    if res:
-        dec = res.group(1)
-        text = text.replace(dec, "@").replace("\033[00m", "#")
-        i = 0
-        while i < len(text):
-            uni_txt.append(text[i])
-            if text[i] == "@":
-                if i:
-                    uni_txt[i-1] += dec
-                    uni_txt.remove("@")
-                else:
-                    uni_txt[i] = dec + text[i+1]
-                    i += 1
-            elif text[i] == "#":
-                uni_txt[i-2] += "\033[00m"
-            i += 1
-        try:
-            uni_txt.remove("#")
-        except: pass
-        return uni_txt
-    return text
 
 mdata = []
 class Screen:
@@ -72,23 +55,6 @@ class Screen:
             if i != 0 and i != width-1:
                 self.L[0][i]             = BD[os][4] # top border
                 self.L[len(self.L)-1][i] = BD[os][4] # bottom border
-
-    def SET_TITLE(self, title="ＮｏＴｉＴｌｅ"):
-        width = self.width
-        BD = self.BD
-        os = self.os
-        title = re_uni_txt(title) # 装飾文字変換
-        title_len = len(title)
-        b_len = int((width - title_len) / 2)
-        for i in range(width):
-            x = i - b_len - 1
-
-            if i == b_len:
-                self.L[0][i] = BD[os][5]
-            if i == b_len + title_len + 1:
-                self.L[0][i] = BD[os][6]
-            if i > b_len and x < title_len:
-                self.L[0][i] = title[x]
     
     def SET_TEXT_CENTER(self, msg="Ｍｅｓｓａｇｅ．", row=False):
         width = self.width
@@ -112,9 +78,6 @@ class Screen:
         #   rowはpositionより優先
         width = self.width
         height = self.height
-        try:
-            msg = re_uni_txt(msg) # 装飾文字変換
-        except: pass
         position = position.split(",")
         if not row:
             if "top"    == position[0]: row = 1
@@ -136,6 +99,24 @@ class Screen:
                 x += 1
         return True
 
+    def SET_MONSTER(self, model, model_width):
+        model_heigh = len(model)
+        width = self.width
+        height = self.height
+        mrow = 0
+        for h in range(height):
+            if h < height-1-model_heigh: continue # 地に足つける
+            if h == height-1: break
+            mw = 0
+            for d in range(width):
+                if d <= model_width: continue
+                if d == width-1: break # 終端
+                if mw == len(model[mrow]): break
+                self.L[h][d] = model[mrow][mw]
+                mw += 1
+            mrow += 1
+
+
     def CLEAR_WINDOW(self):
         width = self.width
         height = self.height
@@ -152,105 +133,7 @@ class Screen:
                     self.L[h][w] = "  "
         return False
 
-    def SEAT_CREATE(self, row=3, vacant="empty"):
-        width = self.width
-        seat_label = ["A ", "B ", "C ", "D ", "E ", "  ", "F ", "G ", "H ", "I ", "J "]
-        seat_num = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15"]
-        no_vacant = []
-
-        if "empty" == vacant: vacant = 5
-        if "slight" == vacant: vacant = 1
-
-        b_len = int((width - 30) / 2) # 横15席
-        for h in range(len(seat_label)):
-            if seat_label[h] != "  ":
-                self.L[h+row][b_len] = seat_label[h]
-                x = 0
-                for i in range(width):
-                    if i > b_len and i%2 == 1:
-                        if not random.randint(0, vacant): # 5. 余裕あり 1. 残りわずか
-                            self.L[h+row][i] = empty+"　"+d.end()
-                            no_vacant.append(seat_label[h].replace(" ","")+seat_num[x]) # ex-> [A03, E01, F15]
-                        else:
-                            self.L[h+row][i] = seat_num[x]
-                        x += 1
-                    if i > b_len and i%2 == 0:
-                        self.L[h+row][i] = "  "
-                    if x == len(seat_num):
-                        break
-
-        return no_vacant, self.L # 満席 座席表データ
-
-
-    def MOVIE_LIST_CREATE(self ,page=1, view_num=4, row=4, col=1):
-        width = self.width
-        page_end = int(len(mdata)/view_num)
-        if len(mdata)%view_num: page_end += 1
-        if page > page_end:
-            page = page_end
-        if page < 1:
-            page = 1
-        table_num_end = view_num*page
-        table_num_start = table_num_end - view_num
-        if len(mdata)%view_num:
-            page_end += 1
-        for i in range(len(mdata)):
-            if  i >= table_num_start and i < table_num_end:
-                # 映画番号
-                str_num = toem(i+1)
-                title   = str_num+"．"+mdata[i]["title"]
-                # 映画タイトル
-                date       = mdata[i]["date"]
-                hour       = mdata[i]["hour"]
-                restricted = mdata[i]["restricted"]
-                metadata   = re_uni_txt(f"　{date}　上映時間：{hour}　レイティング：{green + restricted + d.end()}")
-                if "ＰＧ１２" == restricted:
-                    metadata   = re_uni_txt(f"　{date}　上映時間：{hour}　レイティング：{red + restricted + d.end()}")
-
-                for c in range(len(title)): # 1行目表示
-                    if c == width-2: break  # 折り返しなし
-                    self.L[row][c+col] = title[c]
-                for c in range(len(metadata)): # 2行目表示
-                    self.L[row+1][c+col] = metadata[c]
-                for _ in range(width): # border
-                    if not _: continue
-                    if _ == width-1: continue 
-                    self.L[row+2][_] = self.BD[self.os][4]
-                row += 3
-        return page
-    
-    def TIMETABLE_CREATE(self, f=False, page=1, view_num=4, row=4, col=1):
-        width = self.width
-        no_vacant = [] # 満席の番号
-        timetbl_lst = mdata[f]["timetbl"]
-        table_num = view_num*page
-        page = table_num - view_num
-        for i in range(len(timetbl_lst)):
-            if i >= page and i < table_num:
-                # タイムテーブル番号
-                str_num = toem(i+1)
-                if "full" == timetbl_lst[i][2]:
-                    no_vacant.append(i+1)
-                screen = timetbl_lst[i][0] # スクリーン
-                time = timetbl_lst[i][1] # 上映時間
-                vacant = timetbl_lst[i][2] # 空席状況
-                for i in range(len(vacant_list)):
-                    if vacant == vacant_list[i][0]:
-                        vacant = vacant_list[i][self.os] # 記号置き換え
-                timetbl = str_num+"．"+screen+"　　"+time+"　"
-                timetbl = [_ for _ in timetbl]
-                timetbl.append(vacant)
-
-                for c in range(len(timetbl)): # 1行目表示
-                    self.L[row][c+col] = timetbl[c]
-                for _ in range(width): # border
-                    if not _: continue
-                    if _ == width-1: continue 
-                    self.L[row+1][_] = self.BD[self.os][4]
-                row += 2
-        return no_vacant
-
-    def WINDOW(self, data=False): # 出力  [data(list)] 画面データをセットできる
+    def WINDOW(self, data=False): # 出力
         if data: L = data
         else: L = self.L
         for line in L:
@@ -259,4 +142,19 @@ class Screen:
             print()
 
 s = Screen()
+OS = 2
 s.SET_WINDOW(width=40, height=18, os=OS)
+
+
+
+# モンスター配置  引数：(list)model - モデルデータ (int)model_width - モデル横位置 (min+1-左端, max-1-右端)
+#s.SET_MONSTER(model=[monster_model_data], model_width=x)
+
+# ステータス表示
+s.SET_TEXT("ＨＰ：", row=1)
+s.SET_TEXT(['♥ ','♥ ','♥ ','♥ ','♥ ','♡ '], row=1, col=4) # HPの減りが確認しやすいように空のハートを少しだけ表示させる.
+s.SET_TEXT("スコア：", row=2)
+s.SET_TEXT(toem(21), row=2, col=5)
+s.SET_TEXT("モンスターを倒した数：", row=3)
+s.SET_TEXT(toem(10), row=3, col=12)
+s.WINDOW()
