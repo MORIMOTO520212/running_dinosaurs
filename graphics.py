@@ -99,7 +99,7 @@ class Screen:
                 x += 1
         return True
 
-    def SET_MONSTER(self, model, model_width):
+    def SET_MONSTER(self, model, col):
         model_heigh = len(model)
         width = self.width
         height = self.height
@@ -109,7 +109,7 @@ class Screen:
             if h == height-1: break
             mw = 0
             for d in range(width):
-                if d <= model_width: continue
+                if d <= col: continue
                 if d == width-1: break # 終端
                 if mw == len(model[mrow]): break
                 self.L[h][d] = model[mrow][mw]
@@ -146,15 +146,52 @@ OS = 2
 s.SET_WINDOW(width=40, height=18, os=OS)
 
 
+# スプラッシュ画面
+#s.SET_TEXT_CENTER("Ｒｕｎｎｉｎｇ　Ｄｉｎｏｓａｕｒｓ", row=7)
+#s.SET_TEXT_CENTER("受け身は最大の攻撃である！", row=9)
+#s.SET_TEXT_CENTER("エンターを押してください。", row=15)
+#s.WINDOW()
 
-# モンスター配置  引数：(list)model - モデルデータ (int)model_width - モデル横位置 (min+1-左端, max-1-右端)
-#s.SET_MONSTER(model=[monster_model_data], model_width=x)
+# ステージ選択画面
+#s.SET_TEXT_CENTER("Ｒｕｎｎｉｎｇ　Ｄｉｎｏｓａｕｒｓ", row=7)
+#s.SET_TEXT_CENTER("１　－　ステージ１", row=9)
+#s.SET_TEXT_CENTER("２　－　ステージ２", row=10)
+#s.SET_TEXT_CENTER("ステージを選択してください。", row=15)
+#s.WINDOW()
+#stage_level = int(input("数字を入力 >"))-1
+
+# モンスター配置  引数：(list)model - モデルデータ (int)col - モデル横位置 (min+1-左端, max-1-右端)
+#s.SET_MONSTER(model=[monster_model_data], col=x)
 
 # ステータス表示
-s.SET_TEXT("ＨＰ：", row=1)
-s.SET_TEXT(['♥ ','♥ ','♥ ','♥ ','♥ ','♡ '], row=1, col=4) # HPの減りが確認しやすいように空のハートを少しだけ表示させる.
-s.SET_TEXT("スコア：", row=2)
-s.SET_TEXT(toem(21), row=2, col=5)
-s.SET_TEXT("モンスターを倒した数：", row=3)
-s.SET_TEXT(toem(10), row=3, col=12)
-s.WINDOW()
+#_player_hp = 0
+#def hp_graphics(player_hp):
+#    global _player_hp
+#    if player_hp < _player_hp: hp_graphics_list = ['♥ ' if i < player_hp else '♡ ' for i in range(_player_hp)]
+#    else: hp_graphics_list = ['♥ ' for i in range(player_hp)]
+#    _player_hp = player_hp
+#    return hp_graphics_list
+
+#s.SET_TEXT("ＨＰ：", row=1)
+#s.SET_TEXT(hp_graphics(player_hp), row=1, col=4) # HPの減りが確認しやすいように空のハートを少しだけ表示させる.
+#s.SET_TEXT("スコア：", row=2)
+#s.SET_TEXT(toem(21), row=2, col=5)
+#s.SET_TEXT("モンスターを倒した数：", row=3)
+#s.SET_TEXT(toem(10), row=3, col=12)
+#s.WINDOW()
+
+# HPビーコン　入力
+#hp_beacon_msg = ["１回目：＋１０ＨＰ　確率：１／１０", "２回目：＋５ＨＰ　確率：１／５", "３回目：＋３ＨＰ　確率：１／２", "４回目：＋１ＨＰ　確率：１／１"]
+#s.SET_TEXT("ＨＰビーコン", row=1)
+#s.SET_TEXT(hp_beacon_msg[0], row=3)
+#s.SET_TEXT_CENTER("０～９の中から数字を１つ選んでください。")
+#s.SET_MONSTER(hp_beacon_model_data, col=16)
+#s.WINDOW()
+#inum = input("数字を入力 >")
+
+# HPビーコン　結果
+#s.SET_TEXT_CENTER("あなた　　コンピュータ", row=7)
+#s.SET_TEXT_CENTER("　{}　　　　　　{}　　".format(toem(4), toem(6)), row=8)
+#s.SET_TEXT_CENTER("勝ち！", row=9)
+#s.WINDOW()
+
