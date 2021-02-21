@@ -231,7 +231,7 @@ def play(player_hp=1, score=0, kill_count=0, player_model=False, player_x_axis=2
     s.WINDOW()
 
 
-play(player_hp=player_hp, score=10, kill_count=3, player_model=player_model[0][0], monster_model=hp_beacon_model[0], player_x_axis=5,  monster_x_axis=30, msg="")
+play(player_hp=player_hp, score=10, kill_count=3, player_model=player_model[2][0], monster_model=hp_beacon_model[2], player_x_axis=5,  monster_x_axis=30, msg="")
 
 # HPビーコン　入力
 #hp_beacon_msg = ["１回目：＋１０ＨＰ　確率：１／１０", "２回目：＋５ＨＰ　確率：１／５", "３回目：＋３ＨＰ　確率：１／２", "４回目：＋１ＨＰ　確率：１／１"]
