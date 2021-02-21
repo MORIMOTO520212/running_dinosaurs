@@ -12,6 +12,8 @@ HPが増えると進化！
 
 「 受け身は最大の攻撃である！ 」
 
+※ Visual Studio Code 推奨です。
+
 ## 詳細
 HPポイントが0に到達するまで右側から1体ずつモンスターが出てきて戦闘する。 
 
@@ -118,3 +120,4 @@ HPが無くなるまで。
 ## リファレンス
 https://note.nkmk.me/python-random-shuffle/
 https://note.nkmk.me/python-random-choice-sample-choices/
+https://www.delftstack.com/ja/howto/python/how-to-convert-a-list-to-string/

@@ -99,7 +99,7 @@ class Screen:
                 x += 1
         return True
 
-    def SET_MONSTER(self, model, col):
+    def SET_MODEL(self, model, col):
         model_heigh = len(model)
         width = self.width
         height = self.height
@@ -145,6 +145,13 @@ s = Screen()
 OS = 2
 s.SET_WINDOW(width=40, height=18, os=OS)
 
+def window_input(msg, wait=True):
+    s.WINDOW()
+    res = 0
+    if wait: res = input(msg)
+    s.CLEAR_WINDOW()
+    console_clear()
+    return res
 
 # スプラッシュ画面
 #s.SET_TEXT_CENTER("Ｒｕｎｎｉｎｇ　Ｄｉｎｏｓａｕｒｓ", row=7)
@@ -161,24 +168,70 @@ s.SET_WINDOW(width=40, height=18, os=OS)
 #stage_level = int(input("数字を入力 >"))-1
 
 # モンスター配置  引数：(list)model - モデルデータ (int)col - モデル横位置 (min+1-左端, max-1-右端)
-#s.SET_MONSTER(model=[monster_model_data], col=x)
+#s.SET_MODEL(model=[monster_model_data], col=x)
 
-# ステータス表示
-#_player_hp = 0
-#def hp_graphics(player_hp):
-#    global _player_hp
-#    if player_hp < _player_hp: hp_graphics_list = ['♥ ' if i < player_hp else '♡ ' for i in range(_player_hp)]
-#    else: hp_graphics_list = ['♥ ' for i in range(player_hp)]
-#    _player_hp = player_hp
-#    return hp_graphics_list
+player_hp = 5
 
-#s.SET_TEXT("ＨＰ：", row=1)
-#s.SET_TEXT(hp_graphics(player_hp), row=1, col=4) # HPの減りが確認しやすいように空のハートを少しだけ表示させる.
-#s.SET_TEXT("スコア：", row=2)
-#s.SET_TEXT(toem(21), row=2, col=5)
-#s.SET_TEXT("モンスターを倒した数：", row=3)
-#s.SET_TEXT(toem(10), row=3, col=12)
-#s.WINDOW()
+player_model = [ # 0-vscode, 1-colab, 2-cmd_linux -> 0-level1, 1-level2, 2-level3
+    [ # vscode
+        [['　','　','　','∧','　','∧',' ','__','__　 '],[' 　','／','(*','ﾟー','ﾟ)','／',' ','＼',' '],['／','|','￣','∪ ','∪',' ','￣','|','＼','／　　'],['　','|＿','＿','＿','＿','|／','']], # level1
+        [['　','　','　','∧','　','∧',' ','__','__　 '],[' 　','／','(*','ﾟー','ﾟ)','／',' ','＼',' '],['／','|','￣','∪ ','∪',' ','￣','|','＼','／　　'],['　','|＿','＿','＿','＿','|／',''],['  ','  ',' ∪',' ∪']], # level2
+        [['　','  ','  ','∧ ',' ∧','　'],[' 　','  ','(*','ﾟー','ﾟ)',''],['　',' 　','/　','つ','つ',''],[' ～','（','＿','_,',',ﾉ',' ']] # level3
+    ],
+    [ # colab
+        [['　','　','　','∧',' ','∧','__','__ '],[' 　','／','(*','ﾟー','ﾟ)','／',' ','＼',' '],['／','|','￣','∪','∪','￣','|','＼','／','　　'],['　','|＿','＿','＿','＿','|／','']], # level1
+        [['　','　','　','∧',' ','∧','__','__ '],[' 　','／','(*','ﾟー','ﾟ)','／',' ','＼',' '],['／','|','￣','∪','∪','￣','|','＼','／','　　'],['　','|＿','＿','＿','＿','|／',''],['  ','  ',' ∪','∪',' ']], # level2
+        [['　','  ','  ','∧ ','∧',' '],[' 　','  ','(*','ﾟー','ﾟ)','  '],['　',' 　','/　','つ','つ',''],[' ～','（','＿','_,',',ﾉ']] # level3
+    ],
+    [ # cmd_linux
+        [['　','　','　','∧',' ','∧','__','__ '],[' 　','／','(*','ﾟー','ﾟ)','／',' ','＼',' '],['／','|','￣','∪','∪','￣','|','＼','／','　　'],['　','|＿','＿','＿','＿','|／','']], # level1
+        [['　','　','　','∧',' ','∧','__','__ '],[' 　','／','(*','ﾟー','ﾟ)','／',' ','＼',' '],['／','|','￣','∪','∪','￣','|','＼','／','　　'],['　','|＿','＿','＿','＿','|／',''],['  ','  ',' ∪','∪',' ']], # level2
+        [['　','  ','  ','∧ ','∧',' '],[' 　','  ','(*','ﾟー','ﾟ)','  '],['　',' 　','/　','つ','つ',''],[' ～','（','＿','_,',',ﾉ']] # level3
+    ]
+]
+monster_model = [ # 0-vscode, 1-colab, 2-cmd_linux -> 0-monster1, 1-monster2
+    [ # vscode
+        [["/|"],["|/", "__", "__"],['ヽ','|', 'l ','l│ '],['　', '┷-', '┷-', '┷ ']], # monster1
+        [[' ,','.-','\'\'','\"¨','￣','¨`','\' ','‐ ','、'],['(,','(,','i,',',i',',,','i,',',i',',)',',)'],['　','　',' ）',' 　','（',''],[' 　','（','ﾟー','ﾟ*','　','）','']] # monster2
+    ],
+    [ # colab
+        [['/|'],['|/','__','___',' '],['ヽ','|-',' -│',''],['  ','┷┷','┷ ','',' ']], # monster1
+        [[' ,','.-','\'\'','\"¨','￣','¨`','\'‐','、 ','',''],['(,','(,','i,',',i',',,','i,',',i',',)',',)'],['　','　',' ）',' 　','（',''],[' 　','（','ﾟー','ﾟ*','  ','）','']] # monster2
+    ],
+    [ # cmd_linux
+        [["/|"],["|/", "__", "__"],['ヽ','|', 'l ','l│ '],['　', '┷-', '┷-', '┷ ']], # monster1
+        [[' ,','.-','\'\'','\"¨','￣','¨`','\'‐','、 ','',''],['(,','(,','i,',',i',',,','i,',',i',',)',',)'],['　','　',' ）',' 　','（',''],[' 　','（','ﾟー','ﾟ*','  ','）','']] # monster2
+    ]
+]
+hp_beacon_model = [ # 0-vscode, 1-colab, 2-cmd_linux
+    [['  ','__','__','__','ο-','o-','☆.'],['┏━','┛ ','  ',' ┗','━┓'],['┃┛','  ','  ','  ','┗┃'],['┃ ','  ','HP','  ',' ┃'],['┃┓','  ','  ','  ','┏┃'],['┗━','━━','━━','━━','━┛']], # vscode
+    [['  ','__','__','__','ο-','o-','☆.',''],['┏┛','  ','  ','┗┓','',''],['┃┛','  ','  ','┗┃','',''],['┃ ','  ','HP','  ',' ┃',''],['┃┓','  ','  ','┏┃','',''],['┗━','━━','━┛','','','']], # colab
+    [['  ','__','__','__','ο-','o-','☆.',''],['┏━','┛ ','  ',' ┗','━┓'],['┃┛','  ','  ','  ','┗┃'],['┃ ','  ','HP','  ',' ┃'],['┃┓','  ','  ','  ','┏┃'],['┗━','━━','━━','━━','━┛']] # cmd_linux
+]
+
+# プレイ画面
+_player_hp = 0
+def hp_graphics(player_hp):
+    global _player_hp
+    if player_hp < _player_hp: hp_graphics_list = ['♥ ' if i < player_hp else '♡ ' for i in range(_player_hp)]
+    else: hp_graphics_list = ['♥ ' for i in range(player_hp)]
+    _player_hp = player_hp
+    return hp_graphics_list
+
+def play(player_hp=1, score=0, kill_count=0, player_model=False, player_x_axis=20, monster_model=False, monster_x_axis=40, msg=False): # monster_x_axis: min, max 10, 40
+    s.SET_TEXT("ＨＰ：", row=1)
+    s.SET_TEXT(hp_graphics(player_hp), row=1, col=4)
+    s.SET_TEXT("スコア：", row=2)
+    s.SET_TEXT(toem(score), row=2, col=5)
+    s.SET_TEXT("モンスターを倒した数：", row=3)
+    s.SET_TEXT(toem(kill_count), row=3, col=12)
+    if msg:           s.SET_TEXT_CENTER(msg, row=5)
+    if player_model:  s.SET_MODEL(model=player_model, col=player_x_axis)
+    if monster_model: s.SET_MODEL(model=monster_model, col=monster_x_axis)
+    s.WINDOW()
+
+
+play(player_hp=player_hp, score=10, kill_count=3, player_model=player_model[0][0], monster_model=hp_beacon_model[0], player_x_axis=5,  monster_x_axis=30, msg="")
 
 # HPビーコン　入力
 #hp_beacon_msg = ["１回目：＋１０ＨＰ　確率：１／１０", "２回目：＋５ＨＰ　確率：１／５", "３回目：＋３ＨＰ　確率：１／２", "４回目：＋１ＨＰ　確率：１／１"]
@@ -194,4 +247,3 @@ s.SET_WINDOW(width=40, height=18, os=OS)
 #s.SET_TEXT_CENTER("　{}　　　　　　{}　　".format(toem(4), toem(6)), row=8)
 #s.SET_TEXT_CENTER("勝ち！", row=9)
 #s.WINDOW()
-
